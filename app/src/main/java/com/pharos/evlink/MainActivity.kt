@@ -1,6 +1,7 @@
 package com.pharos.evlink
 
 import android.Manifest
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -9,6 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import com.pharos.evlink.shizuku.ShizukuBridge
 import javax.inject.Inject
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -64,14 +66,18 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private data class Feature(val title: String, val subtitle: String, val icon: ImageVector, val tint: Color)
+private data class Feature(
+    val title: String, val subtitle: String, val icon: ImageVector, val tint: Color,
+    val opensLive: Boolean = false
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeScreen() {
+    val context = androidx.compose.ui.platform.LocalContext.current
     val features = listOf(
-        Feature("Battery Health", "SOH · cells · temp", Icons.Default.BatteryChargingFull, PharosGreen),
-        Feature("Trips & Range", "history · kWh/100km", Icons.Default.Timeline, PharosCyan),
+        Feature("Battery Health", "SOC · SOH · cells · temp", Icons.Default.BatteryChargingFull, PharosGreen, opensLive = true),
+        Feature("Live Telemetry", "power · range · speed", Icons.Default.Speed, PharosCyan, opensLive = true),
         Feature("Cameras & Vision", "BSD · AVM", Icons.Default.Videocam, PharosTeal),
         Feature("Comfort Controls", "doors · lights · climate", Icons.Default.Tune, PharosAmber),
         Feature("Connectivity", "WiFi · eSIM · hotspot", Icons.Default.Wifi, PharosCyan),
@@ -95,16 +101,26 @@ private fun HomeScreen() {
             horizontalArrangement = Arrangement.spacedBy(14.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            items(features) { FeatureTile(it) }
+            items(features) { f ->
+                FeatureTile(f) {
+                    if (f.opensLive) {
+                        context.startActivity(
+                            Intent(context, com.pharos.evlink.ui.screens.LiveDashboardActivity::class.java)
+                        )
+                    }
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun FeatureTile(f: Feature) {
+private fun FeatureTile(f: Feature, onClick: () -> Unit) {
     Column(
         Modifier.fillMaxWidth().height(130.dp).clip(RoundedCornerShape(18.dp))
-            .background(PharosSurface).padding(16.dp),
+            .background(PharosSurface)
+            .clickable(onClick = onClick)
+            .padding(16.dp),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Box(Modifier.size(44.dp).clip(RoundedCornerShape(12.dp))

@@ -53,6 +53,11 @@
             android:exported="false"
             android:theme="@style/Theme.Pharos" />
 
+        <activity
+            android:name=".ui.screens.LiveDashboardActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Pharos" />
+
         <!-- Shizuku provider -->
         <provider
             android:name="rikka.shizuku.ShizukuProvider"
