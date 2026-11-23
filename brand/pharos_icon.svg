@@ -1,0 +1,29 @@
+<svg width="432" height="432" viewBox="0 0 432 432" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0A1022"/>
+      <stop offset="1" stop-color="#05070F"/>
+    </linearGradient>
+    <linearGradient id="t" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#38BDF8"/>
+      <stop offset="1" stop-color="#2DD4BF"/>
+    </linearGradient>
+    <radialGradient id="g" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#38BDF8"/><stop offset="1" stop-color="#38BDF8" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bm" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#38BDF8" stop-opacity="0.5"/><stop offset="1" stop-color="#38BDF8" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="432" height="432" rx="96" fill="url(#bg)"/>
+  <polygon points="216,150 400,96 400,150 216,176" fill="url(#bm)"/>
+  <polygon points="216,176 400,284 400,230 216,150" fill="url(#bm)"/>
+  <circle cx="216" cy="162" r="70" fill="url(#g)"/>
+  <path d="M188 330 L196 196 L236 196 L244 330 Z" fill="url(#t)"/>
+  <rect x="192" y="224" width="48" height="12" fill="#05070F" opacity="0.5"/>
+  <rect x="190" y="258" width="52" height="12" fill="#05070F" opacity="0.5"/>
+  <rect x="194" y="150" width="44" height="40" rx="7" fill="#EAF1FF"/>
+  <circle cx="216" cy="170" r="12" fill="#38BDF8"/>
+  <path d="M186 150 L216 118 L246 150 Z" fill="#2DD4BF"/>
+  <rect x="178" y="330" width="76" height="18" rx="6" fill="#2DD4BF"/>
+</svg>
