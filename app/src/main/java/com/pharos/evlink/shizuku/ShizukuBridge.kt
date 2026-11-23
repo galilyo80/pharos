@@ -63,7 +63,18 @@ class ShizukuBridge @Inject constructor() {
             return@withContext ShellResult(-1, "", SafetyPolicy.reason(command))
         }
         try {
-            val process = Shizuku.newProcess(arrayOf("sh", "-c", command), null, null)
+            // Shizuku.newProcess is a hidden API; invoke it via reflection, the
+            // approach used by Shizuku-based shell apps. It returns a
+            // java.lang.Process whose streams carry the command output.
+            val method = Shizuku::class.java.getDeclaredMethod(
+                "newProcess",
+                Array<String>::class.java,
+                Array<String>::class.java,
+                String::class.java
+            ).apply { isAccessible = true }
+            val process = method.invoke(
+                null, arrayOf("sh", "-c", command), null, null
+            ) as Process
             val out = BufferedReader(InputStreamReader(process.inputStream)).readText()
             val err = BufferedReader(InputStreamReader(process.errorStream)).readText()
             val code = process.waitFor()
