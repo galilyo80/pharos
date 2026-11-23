@@ -118,6 +118,14 @@ private fun ActivationScreen(
                     modifier = Modifier.fillMaxWidth().height(54.dp)
                 ) { Text("REQUEST ACTIVATION", color = PharosBg,
                     fontWeight = FontWeight.Bold, letterSpacing = 1.sp) }
+
+                // Debug builds only: explore the app without a reachable server.
+                if (com.pharos.evlink.BuildConfig.DEBUG) {
+                    Spacer(Modifier.height(12.dp))
+                    TextButton(onClick = onActivated) {
+                        Text("Developer entry →", color = PharosTextDim)
+                    }
+                }
             }
         }
     }
