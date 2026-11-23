@@ -7,6 +7,8 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -77,7 +79,7 @@ class LicenseManager @Inject constructor(
             val url = "$BASE_URL/license/request"
             val payload = json.encodeToString(ActivationForm.serializer(), form)
             val req = Request.Builder().url(url)
-                .post(okhttp3.RequestBody.create(JSON_MEDIA, payload))
+                .post(payload.toRequestBody(JSON_MEDIA))
                 .build()
             http.newCall(req).execute().use { it.isSuccessful }
         } catch (t: Throwable) {
@@ -101,7 +103,7 @@ class LicenseManager @Inject constructor(
     companion object {
         // Set to your own backend. Kept here so there is one source of truth.
         private const val BASE_URL = "http://10.211.55.3:8988"
-        private val JSON_MEDIA = okhttp3.MediaType.parse("application/json; charset=utf-8")
+        private val JSON_MEDIA = "application/json; charset=utf-8".toMediaType()
         private const val KEY_STATE = "state"
         private const val KEY_EXPIRES = "expires"
     }
