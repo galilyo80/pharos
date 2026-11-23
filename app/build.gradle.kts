@@ -81,9 +81,12 @@ dependencies {
     // WorkManager (background license sync / telemetry)
     implementation("androidx.work:work-runtime-ktx:2.9.1")
 
-    // Shizuku — privileged shell access without root
+    // Shizuku — privileged shell access without root (fallback path)
     implementation("dev.rikka.shizuku:api:13.1.5")
     implementation("dev.rikka.shizuku:provider:13.1.5")
+
+    // dadb — self-contained ADB client to talk to the local daemon (primary path)
+    implementation("dev.mobile:dadb:1.2.10")
 
     // Networking (license activation)
     implementation("com.squareup.okhttp3:okhttp:4.12.0")

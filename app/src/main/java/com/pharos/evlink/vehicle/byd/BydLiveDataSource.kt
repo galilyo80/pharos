@@ -1,7 +1,7 @@
 package com.pharos.evlink.vehicle.byd
 
 import com.pharos.evlink.PharosLog
-import com.pharos.evlink.shizuku.ShizukuBridge
+import com.pharos.evlink.shizuku.CarShell
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -18,7 +18,7 @@ import javax.inject.Singleton
  */
 @Singleton
 class BydLiveDataSource @Inject constructor(
-    private val shizuku: ShizukuBridge
+    private val shell: CarShell
 ) {
     data class LiveSnapshot(
         val socPercent: Float? = null,
@@ -37,7 +37,7 @@ class BydLiveDataSource @Inject constructor(
     )
 
     private suspend fun raw(a: Int, b: Int, c: Int): Int? {
-        val out = shizuku.execOrNull("service call autoservice $a i32 $b i32 $c") ?: return null
+        val out = shell.exec("service call autoservice $a i32 $b i32 $c") ?: return null
         val hex = extractHex(out) ?: return null
         val v = runCatching { java.lang.Long.parseLong(hex, 16).toInt() }.getOrNull() ?: return null
         return if (v == 65535 || v == -10011) null else v

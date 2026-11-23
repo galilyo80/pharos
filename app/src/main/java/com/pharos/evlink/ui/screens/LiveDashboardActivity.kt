@@ -18,7 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.pharos.evlink.shizuku.ShizukuBridge
+import com.pharos.evlink.shizuku.CarShell
 import com.pharos.evlink.ui.theme.*
 import com.pharos.evlink.vehicle.byd.BydLiveDataSource
 import dagger.hilt.android.AndroidEntryPoint
@@ -34,11 +34,11 @@ import javax.inject.Inject
 class LiveDashboardActivity : ComponentActivity() {
 
     @Inject lateinit var live: BydLiveDataSource
-    @Inject lateinit var shizuku: ShizukuBridge
+    @Inject lateinit var shell: CarShell
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { PharosTheme { LiveScreen(live, shizuku) } }
+        setContent { PharosTheme { LiveScreen(live, shell) } }
     }
 }
 
@@ -46,19 +46,22 @@ private data class Metric(val label: String, val value: String, val tint: Color)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun LiveScreen(live: BydLiveDataSource, shizuku: ShizukuBridge) {
+private fun LiveScreen(live: BydLiveDataSource, shell: CarShell) {
     var snap by remember { mutableStateOf<BydLiveDataSource.LiveSnapshot?>(null) }
-    var granted by remember { mutableStateOf(shizuku.isGranted()) }
+    var connected by remember { mutableStateOf<Boolean?>(null) }
 
-    LaunchedEffect(granted) {
-        if (!granted) {
-            // keep checking whether the user granted Shizuku meanwhile
-            while (!granted) { granted = shizuku.isGranted(); delay(1000) }
-        }
+    LaunchedEffect(Unit) {
         while (true) {
+            connected = shell.isConnected()
             snap = live.snapshot()
             delay(2000)
         }
+    }
+
+    val statusText = when (connected) {
+        true -> "ADB connected — reading your car…"
+        false -> "Connecting to car (ADB 127.0.0.1:5555)…"
+        null -> "Connecting…"
     }
 
     Scaffold(
@@ -67,31 +70,11 @@ private fun LiveScreen(live: BydLiveDataSource, shizuku: ShizukuBridge) {
             Column(Modifier.background(PharosSurface).padding(20.dp)) {
                 Text("LIVE TELEMETRY", fontWeight = FontWeight.Black, letterSpacing = 3.sp,
                     fontSize = 20.sp, color = PharosText)
-                Text(if (granted) "Reading your car…" else "Waiting for Shizuku access",
-                    color = PharosTextDim, fontSize = 13.sp)
+                Text(statusText,
+                    color = if (connected == true) PharosGreen else PharosTextDim, fontSize = 13.sp)
             }
         }
     ) { pad ->
-        if (!granted) {
-            Column(
-                Modifier.padding(pad).fillMaxSize().padding(32.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text("Live data needs privileged access", color = PharosText,
-                    fontWeight = FontWeight.SemiBold)
-                Spacer(Modifier.height(8.dp))
-                Text("Install Shizuku on the car and grant Pharos, then this screen fills in automatically.",
-                    color = PharosTextDim, fontSize = 13.sp)
-                Spacer(Modifier.height(20.dp))
-                Button(onClick = { shizuku.requestPermission() },
-                    colors = ButtonDefaults.buttonColors(containerColor = PharosCyan)) {
-                    Text("Grant Shizuku", color = PharosBg, fontWeight = FontWeight.Bold)
-                }
-            }
-            return@Scaffold
-        }
-
         val s = snap
         val metrics = listOf(
             Metric("SOC", s?.socPercent?.let { "%.0f%%".format(it) } ?: "—", PharosGreen),
