@@ -1,8 +1,13 @@
 package com.pharos.evlink
 
+import android.Manifest
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
+import com.pharos.evlink.shizuku.ShizukuBridge
+import javax.inject.Inject
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -31,9 +36,31 @@ import dagger.hilt.android.AndroidEntryPoint
  */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject lateinit var shizuku: ShizukuBridge
+
+    private val permissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { /* best effort */ }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        requestAllPermissions()
         setContent { PharosTheme { HomeScreen() } }
+    }
+
+    /** Ask for every runtime permission the app's features use, plus Shizuku. */
+    private fun requestAllPermissions() {
+        val perms = mutableListOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.RECORD_AUDIO
+        )
+        if (Build.VERSION.SDK_INT >= 33) {
+            perms.add(Manifest.permission.POST_NOTIFICATIONS)
+        }
+        runCatching { permissionLauncher.launch(perms.toTypedArray()) }
+        // Privileged shell access (no root) — pops the Shizuku grant dialog.
+        runCatching { shizuku.requestPermission() }
     }
 }
 

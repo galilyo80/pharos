@@ -72,8 +72,10 @@ private fun ActivationScreen(
         delay(900)                       // let the splash breathe
         status = verify()
         checking = false
-        if (status == LicenseState.ACTIVE || status == LicenseState.TRIAL) {
-            delay(600)
+        // Debug builds run fully unlocked: show the splash briefly, then enter.
+        if (com.pharos.evlink.BuildConfig.DEBUG ||
+            status == LicenseState.ACTIVE || status == LicenseState.TRIAL) {
+            delay(700)
             onActivated()
         }
     }
